@@ -12,6 +12,9 @@ namespace DOANTOTNGHIEP
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Register health check service
+            builder.Services.AddSingleton<DOANTOTNGHIEP.src.Services.HealthCheckService>();
+
 
             var app = builder.Build();
 
