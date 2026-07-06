@@ -1,31 +1,110 @@
 # Agent: backend
-# Task: Implement HealthController GET /api/health endpoint that calls HealthCheckService and returns appropriate HTTP status (200 for healthy, 503 for unhealthy).
+# Task: Verify all auth API contracts work correctly: test register, login, token refresh, protected endpoint access, and logout from Flutter app running on Android emulator.
 
-=== Project State ===
-Backend Status:
-Everything is clean and compiles. Here's a summary of what was accomplished:
----
-## Summary
-**File modified:** `src/Services/HealthCheckService.cs`
-### What was added
-Three new methods and a helper were added to the `HealthCheckService`:
-| Method | Description |
-|---|---|
-| `CheckMemoryUsage()` | Measures process working set, private memory, and GC managed memory. Thresholds: **Healthy** < 512 MB, **Degraded** 512 MB–1 GB, **Unhealthy** ≥ 1 GB. |
-| `CheckCpuUsageAsync(CancellationToken)` | Samples `Process.TotalProcessorTime` over a 300 ms interval. Computes CPU usage as a percentage of total cores (`cpuUsedMs / (elapsedMs × Environment.ProcessorCount)`). Thresholds: **Healthy** ≤ 60%, **Degraded** 60–85%, **Unhealthy** > 85%. |
-| `BytesToMegabytes(long)` | Utility to convert bytes → MB for readable descriptions. |
-### How they're wired in
-`CheckHealthAsync` now runs **5 health checks** (up from 2):
-1. **API** — DI container resolution check (existing)
-2. **Database** — EF Core `CanConnectAsync` if a DbContext is registered (existing)
-3. **Memory** — process memory metrics (new)
-4. **CPU** — process CPU usage sampling (new)
-The memory check runs via `Task.Run` to avoid blocking the request thread. The CPU check is already async (it `await`s the sampling delay), so it runs inline. `DeriveOverallStatus` aggregates all 4 component statuses into the overall response.
-### HealthCheckResponse DTO
-No changes needed — `HealthCheckResponse` already has `Status`, `Timestamp`, and `List<HealthCheckDetail> Details` with per-component `Name`, `Status`, `Description`, and `DurationMs`.
-### Build result
-✅ **Build succeeded** — 0 warnings, 0 errors.
-# Generated: 2026-07-05T05:24:45.304110
+=== Feature ===
+JWT Authentication with MongoDB
+
+=== Shared API Contracts ===
+[
+  {
+    "name": "Register",
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "request": {
+      "email": "string",
+      "password": "string",
+      "fullName": "string"
+    },
+    "response": {
+      "user": {
+        "id": "string",
+        "email": "string",
+        "fullName": "string",
+        "createdAt": "string"
+      },
+      "accessToken": "string",
+      "refreshToken": "string"
+    },
+    "success_status_code": 201,
+    "error_status_codes": {
+      "400": "Validation error",
+      "409": "Email already exists"
+    }
+  },
+  {
+    "name": "Login",
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "request": {
+      "email": "string",
+      "password": "string"
+    },
+    "response": {
+      "user": {
+        "id": "string",
+        "email": "string",
+        "fullName": "string",
+        "createdAt": "string"
+      },
+      "accessToken": "string",
+      "refreshToken": "string"
+    },
+    "success_status_code": 200,
+    "error_status_codes": {
+      "400": "Validation error",
+      "401": "Invalid credentials"
+    }
+  },
+  {
+    "name": "RefreshToken",
+    "endpoint": "/api/auth/refresh",
+    "method": "POST",
+    "request": {
+      "refreshToken": "string"
+    },
+    "response": {
+      "accessToken": "string",
+      "refreshToken": "string"
+    },
+    "success_status_code": 200,
+    "error_status_codes": {
+      "400": "Invalid or expired refresh token",
+      "401": "Refresh token revoked"
+    }
+  },
+  {
+    "name": "GetCurrentUser",
+    "endpoint": "/api/auth/me",
+    "method": "GET",
+    "request": null,
+    "response": {
+      "id": "string",
+      "email": "string",
+      "fullName": "string",
+      "createdAt": "string"
+    },
+    "success_status_code": 200,
+    "error_status_codes": {
+      "401": "Unauthorized - invalid or missing access token"
+    }
+  },
+  {
+    "name": "Logout",
+    "endpoint": "/api/auth/logout",
+    "method": "POST",
+    "request": {
+      "refreshToken": "string"
+    },
+    "response": {
+      "message": "Successfully logged out"
+    },
+    "success_status_code": 200,
+    "error_status_codes": {
+      "400": "Invalid refresh token"
+    }
+  }
+]
+# Generated: 2026-07-06T04:13:10.500976
 
 ## SYSTEM PROMPT
 You are a Senior ASP.NET Core Backend Developer.
@@ -90,6 +169,7 @@ When implementing, assume you understand the codebase from the structure provide
 - src
   - Controllers
     - HealthController.cs
+  - Data
   - Models
     - DTOs
       - HealthCheckResponse.cs
