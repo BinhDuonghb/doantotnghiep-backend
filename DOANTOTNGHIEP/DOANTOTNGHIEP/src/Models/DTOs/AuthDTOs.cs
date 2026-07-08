@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DOANTOTNGHIEP.src.Models.DTOs
 {
@@ -25,7 +26,15 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// User's full name
         /// </summary>
         [Required]
+        [JsonPropertyName("name")]
         public string FullName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Password confirmation (must match Password)
+        /// </summary>
+        [Required]
+        [Compare("Password", ErrorMessage = "Password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -78,6 +87,11 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// Refresh token
         /// </summary>
         public string RefreshToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Access token expiry time in seconds
+        /// </summary>
+        public int ExpiresIn { get; set; }
     }
 
     /// <summary>
@@ -94,6 +108,11 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// New refresh token
         /// </summary>
         public string RefreshToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Access token expiry time in seconds
+        /// </summary>
+        public int ExpiresIn { get; set; }
     }
 
     /// <summary>
@@ -123,9 +142,9 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         public string Email { get; set; } = string.Empty;
 
         /// <summary>
-        /// User's full name
+        /// User's name
         /// </summary>
-        public string FullName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// User creation timestamp

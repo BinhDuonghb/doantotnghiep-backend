@@ -64,7 +64,7 @@ namespace DOANTOTNGHIEP.src.Services
             _secretKey = _configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is missing in configuration");
             _issuer = _configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer is missing in configuration");
             _audience = _configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience is missing in configuration");
-            _accessTokenExpiryMinutes = int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "15");
+            _accessTokenExpiryMinutes = int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "30");
             _refreshTokenExpiryDays = int.Parse(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");
         }
 

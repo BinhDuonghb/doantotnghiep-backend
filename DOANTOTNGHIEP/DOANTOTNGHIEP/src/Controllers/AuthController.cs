@@ -42,6 +42,12 @@ namespace DOANTOTNGHIEP.src.Controllers
         [ProducesResponseType(typeof(ProblemDetails), 409)]
         public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
         {
+            // Check model state validation (including password confirmation)
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
             // Check if user already exists
             var existingUser = await _userService.GetUserByEmailAsync(request.Email);
             if (existingUser != null)
@@ -70,11 +76,12 @@ namespace DOANTOTNGHIEP.src.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
-                    FullName = user.FullName,
+                    Name = user.FullName,
                     CreatedAt = user.CreatedAt
                 },
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                ExpiresIn = _jwtService.AccessTokenExpiryMinutes * 60
             };
 
             return CreatedAtAction(nameof(GetCurrentUser), response);
@@ -128,11 +135,12 @@ namespace DOANTOTNGHIEP.src.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
-                    FullName = user.FullName,
+                    Name = user.FullName,
                     CreatedAt = user.CreatedAt
                 },
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                ExpiresIn = _jwtService.AccessTokenExpiryMinutes * 60
             };
 
             return Ok(response);
@@ -172,7 +180,8 @@ namespace DOANTOTNGHIEP.src.Controllers
             var response = new RefreshTokenResponse
             {
                 AccessToken = newAccessToken,
-                RefreshToken = newRefreshToken
+                RefreshToken = newRefreshToken,
+                ExpiresIn = _jwtService.AccessTokenExpiryMinutes * 60
             };
 
             return Ok(response);
@@ -217,7 +226,7 @@ namespace DOANTOTNGHIEP.src.Controllers
             {
                 Id = user.Id,
                 Email = user.Email,
-                FullName = user.FullName,
+                Name = user.FullName,
                 CreatedAt = user.CreatedAt
             };
 

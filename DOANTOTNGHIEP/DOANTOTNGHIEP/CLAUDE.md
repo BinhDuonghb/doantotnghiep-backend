@@ -1,36 +1,11 @@
 # Agent: backend
-# Task: Verify all auth API contracts work correctly: test register, login, token refresh, protected endpoint access, and logout from Flutter app running on Android emulator.
+# Task: Verify complete auth flow: register -> login -> refresh token -> access protected endpoint. Test from Flutter app on Android emulator.
 
 === Feature ===
-JWT Authentication with MongoDB
+Auth Login Register Update
 
 === Shared API Contracts ===
 [
-  {
-    "name": "Register",
-    "endpoint": "/api/auth/register",
-    "method": "POST",
-    "request": {
-      "email": "string",
-      "password": "string",
-      "fullName": "string"
-    },
-    "response": {
-      "user": {
-        "id": "string",
-        "email": "string",
-        "fullName": "string",
-        "createdAt": "string"
-      },
-      "accessToken": "string",
-      "refreshToken": "string"
-    },
-    "success_status_code": 201,
-    "error_status_codes": {
-      "400": "Validation error",
-      "409": "Email already exists"
-    }
-  },
   {
     "name": "Login",
     "endpoint": "/api/auth/login",
@@ -40,19 +15,45 @@ JWT Authentication with MongoDB
       "password": "string"
     },
     "response": {
+      "accessToken": "string",
+      "refreshToken": "string",
       "user": {
         "id": "string",
         "email": "string",
-        "fullName": "string",
-        "createdAt": "string"
-      },
-      "accessToken": "string",
-      "refreshToken": "string"
+        "name": "string"
+      }
     },
     "success_status_code": 200,
     "error_status_codes": {
-      "400": "Validation error",
-      "401": "Invalid credentials"
+      "400": "Invalid request body",
+      "401": "Invalid credentials",
+      "500": "Internal server error"
+    }
+  },
+  {
+    "name": "Register",
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "request": {
+      "email": "string",
+      "password": "string",
+      "name": "string",
+      "confirmPassword": "string"
+    },
+    "response": {
+      "accessToken": "string",
+      "refreshToken": "string",
+      "user": {
+        "id": "string",
+        "email": "string",
+        "name": "string"
+      }
+    },
+    "success_status_code": 201,
+    "error_status_codes": {
+      "400": "Invalid request body or validation failed",
+      "409": "Email already exists",
+      "500": "Internal server error"
     }
   },
   {
@@ -68,43 +69,13 @@ JWT Authentication with MongoDB
     },
     "success_status_code": 200,
     "error_status_codes": {
-      "400": "Invalid or expired refresh token",
-      "401": "Refresh token revoked"
-    }
-  },
-  {
-    "name": "GetCurrentUser",
-    "endpoint": "/api/auth/me",
-    "method": "GET",
-    "request": null,
-    "response": {
-      "id": "string",
-      "email": "string",
-      "fullName": "string",
-      "createdAt": "string"
-    },
-    "success_status_code": 200,
-    "error_status_codes": {
-      "401": "Unauthorized - invalid or missing access token"
-    }
-  },
-  {
-    "name": "Logout",
-    "endpoint": "/api/auth/logout",
-    "method": "POST",
-    "request": {
-      "refreshToken": "string"
-    },
-    "response": {
-      "message": "Successfully logged out"
-    },
-    "success_status_code": 200,
-    "error_status_codes": {
-      "400": "Invalid refresh token"
+      "400": "Invalid request body",
+      "401": "Invalid or expired refresh token",
+      "500": "Internal server error"
     }
   }
 ]
-# Generated: 2026-07-06T04:13:10.500976
+# Generated: 2026-07-08T18:36:35.252788
 
 ## SYSTEM PROMPT
 You are a Senior ASP.NET Core Backend Developer.
@@ -156,6 +127,9 @@ When implementing, assume you understand the codebase from the structure provide
 
 
 ## PROJECT CONTEXT
+- .claude
+  - settings.local.json
+- app.log
 - appsettings.Development.json
 - appsettings.json
 - CLAUDE.md
@@ -168,13 +142,22 @@ When implementing, assume you understand the codebase from the structure provide
   - launchSettings.json
 - src
   - Controllers
+    - AuthController.cs
     - HealthController.cs
   - Data
+    - MongoDbContext.cs
+    - UserRepository.cs
   - Models
     - DTOs
+      - AuthDTOs.cs
       - HealthCheckResponse.cs
+    - User.cs
   - Services
     - HealthCheckService.cs
+    - JwtService.cs
+    - PasswordHasherService.cs
+    - UserService.cs
+- test-swagger-auth.sh
 
 ## WORKSPACE
 Root: D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP
