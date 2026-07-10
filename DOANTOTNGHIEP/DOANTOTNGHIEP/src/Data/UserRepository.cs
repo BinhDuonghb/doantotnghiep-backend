@@ -59,6 +59,21 @@ namespace DOANTOTNGHIEP.src.Data
         /// <param name="refreshToken">Refresh token value</param>
         /// <returns>The user if found, null otherwise</returns>
         Task<User?> FindByRefreshTokenAsync(string refreshToken);
+
+        /// <summary>
+        /// Gets a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <returns>The user's target if set, null otherwise</returns>
+        Task<string?> GetTargetAsync(string userId);
+
+        /// <summary>
+        /// Updates a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="target">New target value</param>
+        /// <returns>True if successful, false otherwise</returns>
+        Task<bool> UpdateTargetAsync(string userId, string target);
     }
 
     /// <summary>
@@ -179,6 +194,36 @@ namespace DOANTOTNGHIEP.src.Data
             );
 
             return await _mongoDbService.Users.Find(filter).FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Gets a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <returns>The user's target if set, null otherwise</returns>
+        public async Task<string?> GetTargetAsync(string userId)
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+            var projection = Builders<User>.Projection.Include(u => u.Target);
+            var result = await _mongoDbService.Users.Find(filter).Project<User>(projection).FirstOrDefaultAsync();
+            return result?.Target;
+        }
+
+        /// <summary>
+        /// Updates a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="target">New target value</param>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> UpdateTargetAsync(string userId, string target)
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+            var update = Builders<User>.Update
+                .Set(u => u.Target, target)
+                .Set(u => u.UpdatedAt, DateTime.UtcNow);
+
+            var result = await _mongoDbService.Users.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
         }
     }
 }

@@ -1,81 +1,32 @@
 # Agent: backend
-# Task: Verify complete auth flow: register -> login -> refresh token -> access protected endpoint. Test from Flutter app on Android emulator.
+# Task: Verify the GET /api/user/target endpoint exists in UserController, validates JWT access token from Authorization header, and returns 401 for invalid/missing tokens. Ensure JWT validation middleware is applied to this endpoint.
 
 === Feature ===
-Auth Login Register Update
+Fix 401 Error on api/user/target API Call
 
 === Shared API Contracts ===
 [
   {
-    "name": "Login",
-    "endpoint": "/api/auth/login",
-    "method": "POST",
-    "request": {
-      "email": "string",
-      "password": "string"
-    },
+    "name": "GetUserTarget",
+    "endpoint": "/api/user/target",
+    "method": "GET",
+    "request": null,
     "response": {
-      "accessToken": "string",
-      "refreshToken": "string",
-      "user": {
-        "id": "string",
-        "email": "string",
-        "name": "string"
-      }
+      "target": "string",
+      "userId": "string",
+      "targetValue": "number",
+      "currentProgress": "number"
     },
     "success_status_code": 200,
     "error_status_codes": {
-      "400": "Invalid request body",
-      "401": "Invalid credentials",
-      "500": "Internal server error"
-    }
-  },
-  {
-    "name": "Register",
-    "endpoint": "/api/auth/register",
-    "method": "POST",
-    "request": {
-      "email": "string",
-      "password": "string",
-      "name": "string",
-      "confirmPassword": "string"
-    },
-    "response": {
-      "accessToken": "string",
-      "refreshToken": "string",
-      "user": {
-        "id": "string",
-        "email": "string",
-        "name": "string"
-      }
-    },
-    "success_status_code": 201,
-    "error_status_codes": {
-      "400": "Invalid request body or validation failed",
-      "409": "Email already exists",
-      "500": "Internal server error"
-    }
-  },
-  {
-    "name": "RefreshToken",
-    "endpoint": "/api/auth/refresh",
-    "method": "POST",
-    "request": {
-      "refreshToken": "string"
-    },
-    "response": {
-      "accessToken": "string",
-      "refreshToken": "string"
-    },
-    "success_status_code": 200,
-    "error_status_codes": {
-      "400": "Invalid request body",
-      "401": "Invalid or expired refresh token",
+      "401": "Unauthorized - Invalid or missing access token",
+      "403": "Forbidden - Insufficient permissions",
+      "404": "User target not found",
       "500": "Internal server error"
     }
   }
 ]
-# Generated: 2026-07-08T18:36:35.252788
+# Generated: 2026-07-10T17:54:04.163336
 
 ## SYSTEM PROMPT
 You are a Senior ASP.NET Core Backend Developer.
@@ -144,6 +95,7 @@ When implementing, assume you understand the codebase from the structure provide
   - Controllers
     - AuthController.cs
     - HealthController.cs
+    - UserController.cs
   - Data
     - MongoDbContext.cs
     - UserRepository.cs
@@ -158,6 +110,7 @@ When implementing, assume you understand the codebase from the structure provide
     - PasswordHasherService.cs
     - UserService.cs
 - test-swagger-auth.sh
+- test-user-target.sh
 
 ## WORKSPACE
 Root: D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP

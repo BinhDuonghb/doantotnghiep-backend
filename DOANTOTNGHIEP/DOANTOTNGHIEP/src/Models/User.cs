@@ -61,5 +61,11 @@ namespace DOANTOTNGHIEP.src.Models
         /// </summary>
         [BsonElement("updated_at")]
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>
+        /// User's target (e.g., "Weight Loss", "Muscle Gain", "Maintenance")
+        /// </summary>
+        [BsonElement("target")]
+        public string? Target { get; set; }
     }
 }

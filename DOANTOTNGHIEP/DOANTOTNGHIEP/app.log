@@ -8,3 +8,9 @@ info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Development
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: DOANTOTNGHIEP.src.Services.HealthCheckService[0]
+      No EF Core DbContext found — skipping database health check.
+info: DOANTOTNGHIEP.src.Services.HealthCheckService[0]
+      No EF Core DbContext found — skipping database health check.

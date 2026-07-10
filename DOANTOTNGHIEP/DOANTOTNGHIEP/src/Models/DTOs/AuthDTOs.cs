@@ -151,4 +151,47 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// </summary>
         public DateTime CreatedAt { get; set; }
     }
+
+    /// <summary>
+    /// DTO for updating user target request
+    /// </summary>
+    public class UpdateUserTargetRequest
+    {
+        /// <summary>
+        /// The user's target value
+        /// </summary>
+        public string Target { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// DTO for getting user target response
+    /// </summary>
+    public class GetUserTargetResponse
+    {
+        /// <summary>
+        /// The user's target value (null if not set)
+        /// </summary>
+        public string? Target { get; set; }
+
+        /// <summary>
+        /// Whether the user has a target set
+        /// </summary>
+        public bool HasTarget { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for updating user target response
+    /// </summary>
+    public class UpdateUserTargetResponse
+    {
+        /// <summary>
+        /// The updated target value
+        /// </summary>
+        public string Target { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Success message
+        /// </summary>
+        public string Message { get; set; } = string.Empty;
+    }
 }

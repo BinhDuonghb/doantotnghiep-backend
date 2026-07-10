@@ -52,6 +52,28 @@ namespace DOANTOTNGHIEP
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                // Return ProblemDetails JSON body on 401 challenges
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        // Skip default WWW-Authenticate header behavior
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+
+                        var problemDetails = new
+                        {
+                            title = "Unauthorized",
+                            status = 401,
+                            detail = context.ErrorDescription ?? "Invalid or missing access token."
+                        };
+
+                        await context.Response.WriteAsJsonAsync(problemDetails);
+                    }
+                };
             });
 
             // Configure authorization policies

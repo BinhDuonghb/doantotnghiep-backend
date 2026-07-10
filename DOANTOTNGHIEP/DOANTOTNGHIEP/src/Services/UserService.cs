@@ -62,6 +62,21 @@ namespace DOANTOTNGHIEP.src.Services
         /// <param name="userId">User's ID</param>
         /// <returns>The user if found, null otherwise</returns>
         Task<User?> GetUserByIdAsync(string userId);
+
+        /// <summary>
+        /// Gets a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <returns>The user's target if set, null otherwise</returns>
+        Task<string?> GetUserTargetAsync(string userId);
+
+        /// <summary>
+        /// Updates a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="target">New target value</param>
+        /// <returns>True if successful, false otherwise</returns>
+        Task<bool> UpdateUserTargetAsync(string userId, string target);
     }
 
     /// <summary>
@@ -167,6 +182,27 @@ namespace DOANTOTNGHIEP.src.Services
         public async Task<User?> GetUserByIdAsync(string userId)
         {
             return await _userRepository.FindByIdAsync(userId);
+        }
+
+        /// <summary>
+        /// Gets a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <returns>The user's target if set, null otherwise</returns>
+        public async Task<string?> GetUserTargetAsync(string userId)
+        {
+            return await _userRepository.GetTargetAsync(userId);
+        }
+
+        /// <summary>
+        /// Updates a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="target">New target value</param>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> UpdateUserTargetAsync(string userId, string target)
+        {
+            return await _userRepository.UpdateTargetAsync(userId, target);
         }
     }
 }
