@@ -1,32 +1,9 @@
 # Agent: backend
-# Task: Verify the GET /api/user/target endpoint exists in UserController, validates JWT access token from Authorization header, and returns 401 for invalid/missing tokens. Ensure JWT validation middleware is applied to this endpoint.
+# Task: Update Program.cs to configure Swagger/OpenAPI with Bearer token authentication scheme. Add AddSecurityDefinition for Bearer token (JWT) and AddSecurityRequirement to apply Bearer auth globally or to protected endpoints. Verify the 'Authorize' button appears in Swagger UI at /swagger.
 
 === Feature ===
-Fix 401 Error on api/user/target API Call
-
-=== Shared API Contracts ===
-[
-  {
-    "name": "GetUserTarget",
-    "endpoint": "/api/user/target",
-    "method": "GET",
-    "request": null,
-    "response": {
-      "target": "string",
-      "userId": "string",
-      "targetValue": "number",
-      "currentProgress": "number"
-    },
-    "success_status_code": 200,
-    "error_status_codes": {
-      "401": "Unauthorized - Invalid or missing access token",
-      "403": "Forbidden - Insufficient permissions",
-      "404": "User target not found",
-      "500": "Internal server error"
-    }
-  }
-]
-# Generated: 2026-07-10T17:54:04.163336
+Swagger Access Token Input
+# Generated: 2026-07-12T03:24:21.892840
 
 ## SYSTEM PROMPT
 You are a Senior ASP.NET Core Backend Developer.
@@ -95,20 +72,25 @@ When implementing, assume you understand the codebase from the structure provide
   - Controllers
     - AuthController.cs
     - HealthController.cs
+    - QuizController.cs
     - UserController.cs
   - Data
     - MongoDbContext.cs
+    - QuizRepository.cs
     - UserRepository.cs
   - Models
     - DTOs
       - AuthDTOs.cs
       - HealthCheckResponse.cs
+    - Quiz.cs
     - User.cs
   - Services
     - HealthCheckService.cs
     - JwtService.cs
     - PasswordHasherService.cs
+    - QuizService.cs
     - UserService.cs
+- test-quiz-flow.sh
 - test-swagger-auth.sh
 - test-user-target.sh
 

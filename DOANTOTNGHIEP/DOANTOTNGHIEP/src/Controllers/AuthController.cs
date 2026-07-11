@@ -64,7 +64,7 @@ namespace DOANTOTNGHIEP.src.Controllers
             var user = await _userService.CreateUserAsync(request.Email, request.Password, request.FullName);
 
             // Generate tokens
-            var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email);
+            var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var refreshToken = _jwtService.GenerateRefreshToken();
 
             // Update user with refresh token (stored in MongoDB)
@@ -123,7 +123,7 @@ namespace DOANTOTNGHIEP.src.Controllers
             }
 
             // Generate tokens
-            var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email);
+            var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var refreshToken = _jwtService.GenerateRefreshToken();
 
             // Update user with refresh token (stored in MongoDB)
@@ -171,7 +171,7 @@ namespace DOANTOTNGHIEP.src.Controllers
             }
 
             // Generate new token pair (token rotation — old refresh token gets replaced)
-            var newAccessToken = _jwtService.GenerateAccessToken(user.Id, user.Email);
+            var newAccessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var newRefreshToken = _jwtService.GenerateRefreshToken();
 
             // Update user with the new refresh token and expiry

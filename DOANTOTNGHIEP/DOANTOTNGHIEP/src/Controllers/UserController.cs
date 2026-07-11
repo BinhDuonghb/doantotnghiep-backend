@@ -29,7 +29,7 @@ namespace DOANTOTNGHIEP.src.Controllers
         /// Gets the current user's target
         /// GET /api/user/target
         /// </summary>
-        /// <returns>User target information (200)</returns>
+        /// <returns>User target information with target, targetType, isSet (200)</returns>
         [HttpGet("target")]
         [ProducesResponseType(typeof(GetUserTargetResponse), 200)]
         [ProducesResponseType(typeof(ProblemDetails), 401)]
@@ -59,28 +59,28 @@ namespace DOANTOTNGHIEP.src.Controllers
                 });
             }
 
-            var target = await _userService.GetUserTargetAsync(userId);
-            var hasTarget = !string.IsNullOrWhiteSpace(target);
+            var targetInfo = await _userService.GetUserTargetAsync(userId);
 
             return Ok(new GetUserTargetResponse
             {
-                Target = target,
-                HasTarget = hasTarget
+                Target = targetInfo?.target,
+                TargetType = targetInfo?.targetType,
+                IsSet = targetInfo?.isSet ?? false
             });
         }
 
         /// <summary>
-        /// Updates the current user's target
-        /// PUT /api/user/target
+        /// Sets the current user's target
+        /// POST /api/user/target
         /// </summary>
-        /// <param name="request">Target update request</param>
-        /// <returns>Updated target information (200)</returns>
-        [HttpPut("target")]
-        [ProducesResponseType(typeof(UpdateUserTargetResponse), 200)]
+        /// <param name="request">Set target request with target and targetType</param>
+        /// <returns>Success response (200)</returns>
+        [HttpPost("target")]
+        [ProducesResponseType(typeof(SetUserTargetResponse), 200)]
         [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
         [ProducesResponseType(typeof(ProblemDetails), 401)]
-        [ProducesResponseType(typeof(ProblemDetails), 404)]
-        public async Task<ActionResult<UpdateUserTargetResponse>> UpdateUserTarget([FromBody] UpdateUserTargetRequest request)
+        [ProducesResponseType(typeof(ProblemDetails), 500)]
+        public async Task<ActionResult<SetUserTargetResponse>> SetUserTarget([FromBody] SetUserTargetRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -98,44 +98,31 @@ namespace DOANTOTNGHIEP.src.Controllers
                 });
             }
 
-            // Validate target value (must not be empty or whitespace)
-            if (string.IsNullOrWhiteSpace(request.Target))
+            // Validate target and targetType are not empty
+            if (string.IsNullOrWhiteSpace(request.Target) || string.IsNullOrWhiteSpace(request.TargetType))
             {
                 return BadRequest(new ProblemDetails
                 {
-                    Title = "Invalid target value",
+                    Title = "Invalid target data",
                     Status = 400,
-                    Detail = "Target must be a non-empty string."
+                    Detail = "Target and targetType must be non-empty strings."
                 });
             }
 
-            // Check if user exists
-            var user = await _userService.GetUserByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "User not found",
-                    Status = 404,
-                    Detail = "The user account was not found."
-                });
-            }
-
-            var success = await _userService.UpdateUserTargetAsync(userId, request.Target);
+            var success = await _userService.UpdateUserTargetAsync(userId, request.Target, request.TargetType);
             if (!success)
             {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "User not found",
-                    Status = 404,
-                    Detail = "The user account was not found."
-                });
+                return Problem(
+                    title: "Internal server error",
+                    detail: "Failed to update user target.",
+                    statusCode: 500
+                );
             }
 
-            return Ok(new UpdateUserTargetResponse
+            return Ok(new SetUserTargetResponse
             {
-                Target = request.Target,
-                Message = "Target updated successfully"
+                Success = true,
+                Message = "User target updated successfully"
             });
         }
 

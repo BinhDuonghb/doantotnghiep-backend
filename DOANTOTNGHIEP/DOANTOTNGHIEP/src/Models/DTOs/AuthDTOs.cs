@@ -153,45 +153,152 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
     }
 
     /// <summary>
-    /// DTO for updating user target request
+    /// DTO for setting user target request (POST /api/user/target)
     /// </summary>
-    public class UpdateUserTargetRequest
+    public class SetUserTargetRequest
     {
         /// <summary>
-        /// The user's target value
+        /// The user's target value (e.g., "Weight Loss", "Muscle Gain")
         /// </summary>
+        [Required]
         public string Target { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The type of target (e.g., "fitness", "nutrition")
+        /// </summary>
+        [Required]
+        public string TargetType { get; set; } = string.Empty;
     }
 
     /// <summary>
-    /// DTO for getting user target response
+    /// DTO for getting user target response (GET /api/user/target)
     /// </summary>
     public class GetUserTargetResponse
     {
         /// <summary>
-        /// The user's target value (null if not set)
+        /// The user's target value
         /// </summary>
         public string? Target { get; set; }
 
         /// <summary>
+        /// The type of the user's target
+        /// </summary>
+        public string? TargetType { get; set; }
+
+        /// <summary>
         /// Whether the user has a target set
         /// </summary>
-        public bool HasTarget { get; set; }
+        public bool IsSet { get; set; }
     }
 
     /// <summary>
-    /// DTO for updating user target response
+    /// DTO for setting user target response (POST /api/user/target)
     /// </summary>
-    public class UpdateUserTargetResponse
+    public class SetUserTargetResponse
     {
         /// <summary>
-        /// The updated target value
+        /// Indicates the operation was successful
         /// </summary>
-        public string Target { get; set; } = string.Empty;
+        public bool Success { get; set; }
 
         /// <summary>
         /// Success message
         /// </summary>
         public string Message { get; set; } = string.Empty;
+    }
+
+    // ==================== Quiz DTOs ====================
+
+    /// <summary>
+    /// DTO for a single quiz item in API responses
+    /// </summary>
+    public class QuizDto
+    {
+        /// <summary>
+        /// Quiz unique identifier
+        /// </summary>
+        public string Id { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The quiz question text
+        /// </summary>
+        public string Question { get; set; } = string.Empty;
+
+        /// <summary>
+        /// List of answer options
+        /// </summary>
+        public List<string> Options { get; set; } = new List<string>();
+
+        /// <summary>
+        /// The correct answer
+        /// </summary>
+        public string CorrectAnswer { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Quiz category (e.g., "Vocabulary", "Grammar", "Reading")
+        /// </summary>
+        public string Category { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Difficulty level (e.g., "Easy", "Medium", "Hard")
+        /// </summary>
+        public string Difficulty { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// DTO for GET /api/quiz response
+    /// </summary>
+    public class GetQuizzesResponse
+    {
+        /// <summary>
+        /// List of quizzes for the user
+        /// </summary>
+        public List<QuizDto> Quizzes { get; set; } = new List<QuizDto>();
+
+        /// <summary>
+        /// Whether the user has a target set
+        /// </summary>
+        public bool UserTargetSet { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for POST /api/admin/quiz/generate request
+    /// </summary>
+    public class GenerateQuizzesRequest
+    {
+        /// <summary>
+        /// Number of quizzes to generate
+        /// </summary>
+        [Required]
+        [Range(1, 100, ErrorMessage = "Count must be between 1 and 100")]
+        public int Count { get; set; }
+
+        /// <summary>
+        /// Category of quizzes to generate
+        /// </summary>
+        [Required]
+        public string Category { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Difficulty level for generated quizzes
+        /// </summary>
+        [Required]
+        public string Difficulty { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// DTO for POST /api/admin/quiz/generate response
+    /// </summary>
+    public class GenerateQuizzesResponse
+    {
+        /// <summary>
+        /// Number of quizzes that were generated
+        /// </summary>
+        public int Generated { get; set; }
+
+        /// <summary>
+        /// The list of generated quizzes
+        /// </summary>
+        public List<QuizDto> Quizzes { get; set; } = new List<QuizDto>();
     }
 }

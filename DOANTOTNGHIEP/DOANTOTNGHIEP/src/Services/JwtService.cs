@@ -19,6 +19,15 @@ namespace DOANTOTNGHIEP.src.Services
         string GenerateAccessToken(string userId, string email);
 
         /// <summary>
+        /// Generates an access token for a user with a specific role
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="email">User's email</param>
+        /// <param name="role">User's role (e.g., "User", "Admin")</param>
+        /// <returns>JWT access token with role claim</returns>
+        string GenerateAccessToken(string userId, string email, string role);
+
+        /// <summary>
         /// Generates a refresh token
         /// </summary>
         /// <returns>Refresh token</returns>
@@ -86,6 +95,18 @@ namespace DOANTOTNGHIEP.src.Services
         /// <returns>JWT access token</returns>
         public string GenerateAccessToken(string userId, string email)
         {
+            return GenerateAccessToken(userId, email, "User");
+        }
+
+        /// <summary>
+        /// Generates an access token for a user with a specific role
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="email">User's email</param>
+        /// <param name="role">User's role (e.g., "User", "Admin")</param>
+        /// <returns>JWT access token</returns>
+        public string GenerateAccessToken(string userId, string email, string role)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -93,7 +114,8 @@ namespace DOANTOTNGHIEP.src.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, userId),
-                    new Claim(ClaimTypes.Email, email)
+                    new Claim(ClaimTypes.Email, email),
+                    new Claim(ClaimTypes.Role, role)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(_accessTokenExpiryMinutes),
                 Issuer = _issuer,

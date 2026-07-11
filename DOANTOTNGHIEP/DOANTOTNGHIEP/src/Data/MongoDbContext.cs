@@ -26,6 +26,11 @@ namespace DOANTOTNGHIEP.src.Data
         /// Collection of users
         /// </summary>
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
+
+        /// <summary>
+        /// Collection of quizzes
+        /// </summary>
+        public IMongoCollection<Quiz> Quizzes => _database.GetCollection<Quiz>("quizzes");
     }
 
     /// <summary>
@@ -37,6 +42,11 @@ namespace DOANTOTNGHIEP.src.Data
         /// Gets the users collection
         /// </summary>
         IMongoCollection<User> Users { get; }
+
+        /// <summary>
+        /// Gets the quizzes collection
+        /// </summary>
+        IMongoCollection<Quiz> Quizzes { get; }
     }
 
     /// <summary>
@@ -62,5 +72,10 @@ namespace DOANTOTNGHIEP.src.Data
         /// Gets the users collection
         /// </summary>
         public IMongoCollection<User> Users => _context.Users;
+
+        /// <summary>
+        /// Gets the quizzes collection
+        /// </summary>
+        public IMongoCollection<Quiz> Quizzes => _context.Quizzes;
     }
 }

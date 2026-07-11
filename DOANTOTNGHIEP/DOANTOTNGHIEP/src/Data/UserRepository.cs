@@ -61,19 +61,20 @@ namespace DOANTOTNGHIEP.src.Data
         Task<User?> FindByRefreshTokenAsync(string refreshToken);
 
         /// <summary>
-        /// Gets a user's target
+        /// Gets a user's target information
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <returns>The user's target if set, null otherwise</returns>
-        Task<string?> GetTargetAsync(string userId);
+        /// <returns>A tuple with target, targetType, and isSet; null if user not found</returns>
+        Task<(string? target, string? targetType, bool isSet)?> GetTargetAsync(string userId);
 
         /// <summary>
-        /// Updates a user's target
+        /// Updates a user's target and target type
         /// </summary>
         /// <param name="userId">User's ID</param>
         /// <param name="target">New target value</param>
+        /// <param name="targetType">New target type</param>
         /// <returns>True if successful, false otherwise</returns>
-        Task<bool> UpdateTargetAsync(string userId, string target);
+        Task<bool> UpdateTargetAsync(string userId, string target, string targetType);
     }
 
     /// <summary>
@@ -197,29 +198,36 @@ namespace DOANTOTNGHIEP.src.Data
         }
 
         /// <summary>
-        /// Gets a user's target
+        /// Gets a user's target information
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <returns>The user's target if set, null otherwise</returns>
-        public async Task<string?> GetTargetAsync(string userId)
+        /// <returns>A tuple with target, targetType, and isSet; null if user not found</returns>
+        public async Task<(string? target, string? targetType, bool isSet)?> GetTargetAsync(string userId)
         {
             var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
-            var projection = Builders<User>.Projection.Include(u => u.Target);
+            var projection = Builders<User>.Projection
+                .Include(u => u.Target)
+                .Include(u => u.TargetType)
+                .Include(u => u.IsSet);
             var result = await _mongoDbService.Users.Find(filter).Project<User>(projection).FirstOrDefaultAsync();
-            return result?.Target;
+            if (result == null) return null;
+            return (result.Target, result.TargetType, result.IsSet);
         }
 
         /// <summary>
-        /// Updates a user's target
+        /// Updates a user's target and target type
         /// </summary>
         /// <param name="userId">User's ID</param>
         /// <param name="target">New target value</param>
+        /// <param name="targetType">New target type</param>
         /// <returns>True if successful, false otherwise</returns>
-        public async Task<bool> UpdateTargetAsync(string userId, string target)
+        public async Task<bool> UpdateTargetAsync(string userId, string target, string targetType)
         {
             var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
             var update = Builders<User>.Update
                 .Set(u => u.Target, target)
+                .Set(u => u.TargetType, targetType)
+                .Set(u => u.IsSet, true)
                 .Set(u => u.UpdatedAt, DateTime.UtcNow);
 
             var result = await _mongoDbService.Users.UpdateOneAsync(filter, update);

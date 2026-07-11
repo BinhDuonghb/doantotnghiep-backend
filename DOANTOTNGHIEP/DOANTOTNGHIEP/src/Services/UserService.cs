@@ -64,19 +64,20 @@ namespace DOANTOTNGHIEP.src.Services
         Task<User?> GetUserByIdAsync(string userId);
 
         /// <summary>
-        /// Gets a user's target
+        /// Gets a user's target information
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <returns>The user's target if set, null otherwise</returns>
-        Task<string?> GetUserTargetAsync(string userId);
+        /// <returns>A tuple with target, targetType, and isSet; null if user not found</returns>
+        Task<(string? target, string? targetType, bool isSet)?> GetUserTargetAsync(string userId);
 
         /// <summary>
-        /// Updates a user's target
+        /// Updates a user's target and target type
         /// </summary>
         /// <param name="userId">User's ID</param>
         /// <param name="target">New target value</param>
+        /// <param name="targetType">New target type</param>
         /// <returns>True if successful, false otherwise</returns>
-        Task<bool> UpdateUserTargetAsync(string userId, string target);
+        Task<bool> UpdateUserTargetAsync(string userId, string target, string targetType);
     }
 
     /// <summary>
@@ -185,24 +186,25 @@ namespace DOANTOTNGHIEP.src.Services
         }
 
         /// <summary>
-        /// Gets a user's target
+        /// Gets a user's target information
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <returns>The user's target if set, null otherwise</returns>
-        public async Task<string?> GetUserTargetAsync(string userId)
+        /// <returns>A tuple with target, targetType, and isSet; null if user not found</returns>
+        public async Task<(string? target, string? targetType, bool isSet)?> GetUserTargetAsync(string userId)
         {
             return await _userRepository.GetTargetAsync(userId);
         }
 
         /// <summary>
-        /// Updates a user's target
+        /// Updates a user's target and target type
         /// </summary>
         /// <param name="userId">User's ID</param>
         /// <param name="target">New target value</param>
+        /// <param name="targetType">New target type</param>
         /// <returns>True if successful, false otherwise</returns>
-        public async Task<bool> UpdateUserTargetAsync(string userId, string target)
+        public async Task<bool> UpdateUserTargetAsync(string userId, string target, string targetType)
         {
-            return await _userRepository.UpdateTargetAsync(userId, target);
+            return await _userRepository.UpdateTargetAsync(userId, target, targetType);
         }
     }
 }

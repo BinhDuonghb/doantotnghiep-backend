@@ -67,5 +67,23 @@ namespace DOANTOTNGHIEP.src.Models
         /// </summary>
         [BsonElement("target")]
         public string? Target { get; set; }
+
+        /// <summary>
+        /// Type of the user's target (e.g., "fitness", "nutrition", "lifestyle")
+        /// </summary>
+        [BsonElement("target_type")]
+        public string? TargetType { get; set; }
+
+        /// <summary>
+        /// Whether the user has explicitly set a target
+        /// </summary>
+        [BsonElement("is_set")]
+        public bool IsSet { get; set; }
+
+        /// <summary>
+        /// User role (e.g., "User", "Admin")
+        /// </summary>
+        [BsonElement("role")]
+        public string Role { get; set; } = "User";
     }
 }
