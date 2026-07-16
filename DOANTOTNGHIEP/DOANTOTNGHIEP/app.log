@@ -14,3 +14,5 @@ info: DOANTOTNGHIEP.src.Services.HealthCheckService[0]
       No EF Core DbContext found — skipping database health check.
 info: DOANTOTNGHIEP.src.Services.HealthCheckService[0]
       No EF Core DbContext found — skipping database health check.
+warn: Microsoft.AspNetCore.Server.Kestrel[22]
+      As of "07/14/2026 19:25:02 +00:00", the heartbeat has been running for "00:00:01.0380860" which is longer than "00:00:01". This could be caused by thread pool starvation.

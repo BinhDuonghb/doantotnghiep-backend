@@ -20,6 +20,9 @@ namespace DOANTOTNGHIEP.src.Data
         {
             var client = new MongoClient(connectionString);
             _database = client.GetDatabase(databaseName);
+
+            // Create indexes for the collections
+            CreateIndexes();
         }
 
         /// <summary>
@@ -31,6 +34,55 @@ namespace DOANTOTNGHIEP.src.Data
         /// Collection of quizzes
         /// </summary>
         public IMongoCollection<Quiz> Quizzes => _database.GetCollection<Quiz>("quizzes");
+
+        /// <summary>
+        /// Collection of targets
+        /// </summary>
+        public IMongoCollection<Target> Targets => _database.GetCollection<Target>("targets");
+
+        /// <summary>
+        /// Creates indexes for the collections
+        /// </summary>
+        private void CreateIndexes()
+        {
+            // Create indexes for Users collection
+            var usersCollection = Users;
+
+            // Create index on email field for faster login lookups
+            var emailIndexKeys = Builders<User>.IndexKeys.Ascending(u => u.Email);
+            var emailIndexModel = new CreateIndexModel<User>(emailIndexKeys);
+            usersCollection.Indexes.CreateOne(emailIndexModel);
+
+            // Create index on targets field for faster target queries
+            var targetsIndexKeys = Builders<User>.IndexKeys.Ascending(u => u.Targets);
+            var targetsIndexModel = new CreateIndexModel<User>(targetsIndexKeys);
+            usersCollection.Indexes.CreateOne(targetsIndexModel);
+
+            // Create indexes for Targets collection
+            var targetsCollection = Targets;
+
+            // Create index on userId field
+            var userIdIndexKeys = Builders<Target>.IndexKeys.Ascending(t => t.UserId);
+            var userIdIndexModel = new CreateIndexModel<Target>(userIdIndexKeys);
+            targetsCollection.Indexes.CreateOne(userIdIndexModel);
+
+            // Create index on created_at field for sorting by creation date
+            var createdAtIndexKeys = Builders<Target>.IndexKeys.Ascending(t => t.CreatedAt);
+            var createdAtIndexModel = new CreateIndexModel<Target>(createdAtIndexKeys);
+            targetsCollection.Indexes.CreateOne(createdAtIndexModel);
+
+            // Create index on is_covered field
+            var isCoveredIndexKeys = Builders<Target>.IndexKeys.Ascending(t => t.IsCovered);
+            var isCoveredIndexModel = new CreateIndexModel<Target>(isCoveredIndexKeys);
+            targetsCollection.Indexes.CreateOne(isCoveredIndexModel);
+
+            // Create compound index on userId and created_at fields for user-specific sorting
+            var userCreatedAtIndexKeys = Builders<Target>.IndexKeys
+                .Ascending(t => t.UserId)
+                .Ascending(t => t.CreatedAt);
+            var userCreatedAtIndexModel = new CreateIndexModel<Target>(userCreatedAtIndexKeys);
+            targetsCollection.Indexes.CreateOne(userCreatedAtIndexModel);
+        }
     }
 
     /// <summary>
@@ -47,6 +99,11 @@ namespace DOANTOTNGHIEP.src.Data
         /// Gets the quizzes collection
         /// </summary>
         IMongoCollection<Quiz> Quizzes { get; }
+
+        /// <summary>
+        /// Gets the targets collection
+        /// </summary>
+        IMongoCollection<Target> Targets { get; }
     }
 
     /// <summary>
@@ -77,5 +134,10 @@ namespace DOANTOTNGHIEP.src.Data
         /// Gets the quizzes collection
         /// </summary>
         public IMongoCollection<Quiz> Quizzes => _context.Quizzes;
+
+        /// <summary>
+        /// Gets the targets collection
+        /// </summary>
+        public IMongoCollection<Target> Targets => _context.Targets;
     }
 }

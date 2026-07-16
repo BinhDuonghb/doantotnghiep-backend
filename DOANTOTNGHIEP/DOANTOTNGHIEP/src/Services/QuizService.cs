@@ -53,9 +53,9 @@ namespace DOANTOTNGHIEP.src.Services
         /// <returns>A response with quizzes and userTargetSet flag</returns>
         public async Task<GetQuizzesResponse> GetQuizzesAsync(string userId)
         {
-            // Check if user has a target set
-            var targetInfo = await _userRepository.GetTargetAsync(userId);
-            var userTargetSet = targetInfo?.isSet ?? false;
+            // Check if user has a target set by checking if they have any targets
+            var user = await _userRepository.FindByIdAsync(userId);
+            var userTargetSet = user?.Targets != null && user.Targets.Any();
 
             // Only return quizzes if the user has a target set
             var quizzes = userTargetSet

@@ -7,6 +7,7 @@ namespace DOANTOTNGHIEP.src.Models
     /// <summary>
     /// User entity for MongoDB storage
     /// </summary>
+    [BsonIgnoreExtraElements]
     public class User
     {
         /// <summary>
@@ -63,27 +64,21 @@ namespace DOANTOTNGHIEP.src.Models
         public DateTime UpdatedAt { get; set; }
 
         /// <summary>
-        /// User's target (e.g., "Weight Loss", "Muscle Gain", "Maintenance")
+        /// Collection of targets associated with this user
         /// </summary>
-        [BsonElement("target")]
-        public string? Target { get; set; }
-
-        /// <summary>
-        /// Type of the user's target (e.g., "fitness", "nutrition", "lifestyle")
-        /// </summary>
-        [BsonElement("target_type")]
-        public string? TargetType { get; set; }
-
-        /// <summary>
-        /// Whether the user has explicitly set a target
-        /// </summary>
-        [BsonElement("is_set")]
-        public bool IsSet { get; set; }
+        [BsonElement("targets")]
+        public List<Target> Targets { get; set; } = new List<Target>();
 
         /// <summary>
         /// User role (e.g., "User", "Admin")
         /// </summary>
         [BsonElement("role")]
         public string Role { get; set; } = "User";
+
+        /// <summary>
+        /// Collection of target IDs associated with this user
+        /// </summary>
+        [BsonElement("target_ids")]
+        public List<string> TargetIds { get; set; } = new List<string>();
     }
 }

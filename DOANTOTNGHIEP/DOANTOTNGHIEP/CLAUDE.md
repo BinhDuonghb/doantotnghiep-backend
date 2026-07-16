@@ -1,9 +1,23 @@
 # Agent: backend
-# Task: Update Program.cs to configure Swagger/OpenAPI with Bearer token authentication scheme. Add AddSecurityDefinition for Bearer token (JWT) and AddSecurityRequirement to apply Bearer auth globally or to protected endpoints. Verify the 'Authorize' button appears in Swagger UI at /swagger.
-
-=== Feature ===
-Swagger Access Token Input
-# Generated: 2026-07-12T03:24:21.892840
+# Task: System.FormatException: Element 'target' does not match any field or property of class DOANTOTNGHIEP.src.Models.User.
+   at MongoDB.Bson.Serialization.BsonClassMapSerializer`1.DeserializeClass(BsonDeserializationContext context)
+   at MongoDB.Bson.Serialization.BsonClassMapSerializer`1.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+   at MongoDB.Bson.Serialization.IBsonSerializerExtensions.Deserialize[TValue](IBsonSerializer`1 serializer, BsonDeserializationContext context)
+   at MongoDB.Driver.Core.Operations.CursorBatchDeserializationHelper.DeserializeBatch[TDocument](RawBsonArray batch, IBsonSerializer`1 documentSerializer, MessageEncoderSettings messageEncoderSettings)
+   at MongoDB.Driver.Core.Operations.FindOperation`1.CreateFirstCursorBatch(BsonDocument cursorDocument)
+   at MongoDB.Driver.Core.Operations.FindOperation`1.CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
+   at MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
+   at MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(OperationContext operationContext, IReadBinding binding)
+   at MongoDB.Driver.OperationExecutor.ExecuteReadOperationAsync[TResult](OperationContext operationContext, IClientSessionHandle session, IReadOperation`1 operation, ReadPreference readPreference, Boolean allowChannelPinning)
+   at MongoDB.Driver.MongoCollectionImpl`1.ExecuteReadOperationAsync[TResult](IClientSessionHandle session, IReadOperation`1 operation, ReadPreference explicitReadPreference, Nullable`1 timeout, CancellationToken cancellationToken)
+   at MongoDB.Driver.MongoCollectionImpl`1.FindAsync[TProjection](FilterDefinition`1 filter, FindOptions`2 options, CancellationToken cancellationToken)
+   at MongoDB.Driver.IAsyncCursorSourceExtensions.FirstOrDefaultAsync[TDocument](IAsyncCursorSource`1 source, CancellationToken cancellationToken)
+   at DOANTOTNGHIEP.src.Data.UserRepository.FindByEmailAsync(String email) in D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Data\UserRepository.cs:line 88
+   at DOANTOTNGHIEP.src.Services.UserService.GetUserByEmailAsync(String email) in D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Services\UserService.cs:line 152
+   at DOANTOTNGHIEP.src.Controllers.AuthController.Login(LoginRequest request) in D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\AuthController.cs:line 103
+   at lambda_method5(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments) the login enpoint is bug
+# Generated: 2026-07-15T19:06:37.691194
 
 ## SYSTEM PROMPT
 You are a Senior ASP.NET Core Backend Developer.
@@ -53,6 +67,10 @@ Task Workflow:
 When implementing, assume you understand the codebase from the structure provided.
 
 
+## AGENT MEMORY (Backend)
+
+_Last updated: _
+
 
 ## PROJECT CONTEXT
 - .claude
@@ -60,11 +78,17 @@ When implementing, assume you understand the codebase from the structure provide
 - app.log
 - appsettings.Development.json
 - appsettings.json
+- build.log
+- build_output.txt
 - CLAUDE.md
 - DOANTOTNGHIEP.csproj
 - DOANTOTNGHIEP.csproj.user
 - DOANTOTNGHIEP.http
 - Dockerfile
+- Migrations
+  - Migrations.csproj
+  - Program.cs
+  - TargetMigration.cs
 - Program.cs
 - Properties
   - launchSettings.json
@@ -73,22 +97,28 @@ When implementing, assume you understand the codebase from the structure provide
     - AuthController.cs
     - HealthController.cs
     - QuizController.cs
+    - TargetController.cs
     - UserController.cs
   - Data
     - MongoDbContext.cs
     - QuizRepository.cs
+    - TargetRepository.cs
     - UserRepository.cs
   - Models
     - DTOs
       - AuthDTOs.cs
       - HealthCheckResponse.cs
+      - TargetDTOs.cs
     - Quiz.cs
+    - Target.cs
     - User.cs
   - Services
     - HealthCheckService.cs
+    - ITargetService.cs
     - JwtService.cs
     - PasswordHasherService.cs
     - QuizService.cs
+    - TargetService.cs
     - UserService.cs
 - test-quiz-flow.sh
 - test-swagger-auth.sh

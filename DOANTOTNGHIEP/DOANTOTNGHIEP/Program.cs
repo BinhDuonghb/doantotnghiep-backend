@@ -60,6 +60,8 @@ namespace DOANTOTNGHIEP
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IQuizRepository, QuizRepository>();
             builder.Services.AddScoped<IQuizService, QuizService>();
+            builder.Services.AddScoped<ITargetRepository, TargetRepository>();
+            builder.Services.AddScoped<ITargetService, TargetService>();
 
             // Configure JWT authentication
             var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is missing in configuration");

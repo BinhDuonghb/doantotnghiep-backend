@@ -1,0 +1,15 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\TargetController.cs(210,21): error CS0117: 'TargetResponse' does not contain a definition for 'CompletedFieldsHistory' [D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\DOANTOTNGHIEP.csproj]
+D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\TargetController.cs(216,21): error CS0117: 'TargetResponse' does not contain a definition for 'ProgressPercentage' [D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\DOANTOTNGHIEP.csproj]
+D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\TargetController.cs(217,21): error CS0117: 'TargetResponse' does not contain a definition for 'DaysRemaining' [D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\DOANTOTNGHIEP.csproj]
+
+Build FAILED.
+
+D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\TargetController.cs(210,21): error CS0117: 'TargetResponse' does not contain a definition for 'CompletedFieldsHistory' [D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\DOANTOTNGHIEP.csproj]
+D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\TargetController.cs(216,21): error CS0117: 'TargetResponse' does not contain a definition for 'ProgressPercentage' [D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\DOANTOTNGHIEP.csproj]
+D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\TargetController.cs(217,21): error CS0117: 'TargetResponse' does not contain a definition for 'DaysRemaining' [D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\DOANTOTNGHIEP.csproj]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:01.19

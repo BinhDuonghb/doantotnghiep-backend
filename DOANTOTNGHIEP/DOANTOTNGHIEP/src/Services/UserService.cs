@@ -1,5 +1,6 @@
 using DOANTOTNGHIEP.src.Data;
 using DOANTOTNGHIEP.src.Models;
+using DOANTOTNGHIEP.src.Models.DTOs;
 using DOANTOTNGHIEP.src.Services;
 
 namespace DOANTOTNGHIEP.src.Services
@@ -64,20 +65,36 @@ namespace DOANTOTNGHIEP.src.Services
         Task<User?> GetUserByIdAsync(string userId);
 
         /// <summary>
-        /// Gets a user's target information
+        /// Gets all targets for a user
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <returns>A tuple with target, targetType, and isSet; null if user not found</returns>
-        Task<(string? target, string? targetType, bool isSet)?> GetUserTargetAsync(string userId);
+        /// <returns>List of targets</returns>
+        Task<List<Target>> GetUserTargetsAsync(string userId);
 
         /// <summary>
-        /// Updates a user's target and target type
+        /// Adds a new target for a user
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <param name="target">New target value</param>
-        /// <param name="targetType">New target type</param>
+        /// <param name="target">Target to add</param>
+        /// <returns>The created target</returns>
+        Task<Target> AddUserTargetAsync(string userId, Target target);
+
+        /// <summary>
+        /// Updates a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="targetId">Target ID</param>
+        /// <param name="target">Updated target</param>
         /// <returns>True if successful, false otherwise</returns>
-        Task<bool> UpdateUserTargetAsync(string userId, string target, string targetType);
+        Task<bool> UpdateUserTargetAsync(string userId, string targetId, Target target);
+
+        /// <summary>
+        /// Removes a target from a user
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="targetId">Target ID</param>
+        /// <returns>True if successful, false otherwise</returns>
+        Task<bool> RemoveUserTargetAsync(string userId, string targetId);
     }
 
     /// <summary>
@@ -86,16 +103,19 @@ namespace DOANTOTNGHIEP.src.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ITargetService _targetService;
         private readonly IPasswordHasherService _passwordHasherService;
 
         /// <summary>
         /// Initializes a new instance of the UserService class
         /// </summary>
         /// <param name="userRepository">User repository for data access</param>
+        /// <param name="targetService">Target service for target operations</param>
         /// <param name="passwordHasherService">Password hasher service</param>
-        public UserService(IUserRepository userRepository, IPasswordHasherService passwordHasherService)
+        public UserService(IUserRepository userRepository, ITargetService targetService, IPasswordHasherService passwordHasherService)
         {
             _userRepository = userRepository;
+            _targetService = targetService;
             _passwordHasherService = passwordHasherService;
         }
 
@@ -114,7 +134,9 @@ namespace DOANTOTNGHIEP.src.Services
                 PasswordHash = _passwordHasherService.HashPassword(password),
                 FullName = fullName,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Targets = new List<Target>(),
+                TargetIds = new List<string>()
             };
 
             return await _userRepository.CreateAsync(user);
@@ -186,25 +208,77 @@ namespace DOANTOTNGHIEP.src.Services
         }
 
         /// <summary>
-        /// Gets a user's target information
+        /// Gets all targets for a user
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <returns>A tuple with target, targetType, and isSet; null if user not found</returns>
-        public async Task<(string? target, string? targetType, bool isSet)?> GetUserTargetAsync(string userId)
+        /// <returns>List of targets</returns>
+        public async Task<List<Target>> GetUserTargetsAsync(string userId)
         {
-            return await _userRepository.GetTargetAsync(userId);
+            return await _targetService.GetUserTargetsAsync(userId);
         }
 
         /// <summary>
-        /// Updates a user's target and target type
+        /// Adds a new target for a user
         /// </summary>
         /// <param name="userId">User's ID</param>
-        /// <param name="target">New target value</param>
-        /// <param name="targetType">New target type</param>
-        /// <returns>True if successful, false otherwise</returns>
-        public async Task<bool> UpdateUserTargetAsync(string userId, string target, string targetType)
+        /// <param name="target">Target to add</param>
+        /// <returns>The created target</returns>
+        public async Task<Target> AddUserTargetAsync(string userId, Target target)
         {
-            return await _userRepository.UpdateTargetAsync(userId, target, targetType);
+            // Ensure the target belongs to the user
+            target.UserId = userId;
+            target.CreatedAt = DateTime.UtcNow;
+            target.UpdatedAt = DateTime.UtcNow;
+
+            // Create the target through TargetService
+            // Note: We'll need to create a DTO for this, but for now we'll use the repository directly
+            return await _targetService.CreateTargetAsync(userId, new CreateTargetRequestDto
+            {
+                Title = target.Title,
+                TargetType = target.TargetType,
+                TargetValue = target.TargetValue,
+                TargetUnit = target.TargetUnit
+            });
+        }
+
+        /// <summary>
+        /// Updates a user's target
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="targetId">Target ID</param>
+        /// <param name="target">Updated target</param>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> UpdateUserTargetAsync(string userId, string targetId, Target target)
+        {
+            // Update the target through TargetService
+            try
+            {
+                var updateDto = new UpdateTargetRequestDto
+                {
+                    Title = target.Title,
+                    TargetValue = target.TargetValue,
+                    TargetUnit = target.TargetUnit,
+                    CurrentProgress = target.CurrentProgress
+                };
+
+                await _targetService.UpdateTargetAsync(targetId, updateDto);
+                return true;
+            }
+            catch (KeyNotFoundException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Removes a target from a user
+        /// </summary>
+        /// <param name="userId">User's ID</param>
+        /// <param name="targetId">Target ID</param>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> RemoveUserTargetAsync(string userId, string targetId)
+        {
+            return await _targetService.DeleteTargetAsync(targetId, userId);
         }
     }
 }
