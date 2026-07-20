@@ -1,4 +1,5 @@
 using DOANTOTNGHIEP.src.Data;
+using DOANTOTNGHIEP.src.Models;
 using DOANTOTNGHIEP.src.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -62,6 +63,23 @@ namespace DOANTOTNGHIEP
             builder.Services.AddScoped<IQuizService, QuizService>();
             builder.Services.AddScoped<ITargetRepository, TargetRepository>();
             builder.Services.AddScoped<ITargetService, TargetService>();
+
+            // Register AI Quiz Service with typed HttpClient
+            builder.Services.AddHttpClient<IAiAssistantService, AiAssistantService>(client =>
+            {
+                // Base address and auth header are set in AiAssistantService constructor
+                client.Timeout = TimeSpan.FromMinutes(5);
+            });
+
+            // Register AI Quiz settings via IOptions pattern
+            builder.Services.Configure<AiAssistantSettings>(builder.Configuration.GetSection(AiAssistantSettings.SectionName));
+
+            // Register Prompt Template Settings via IOptions pattern
+            builder.Services.Configure<PromptTemplateSettings>(
+                builder.Configuration.GetSection(PromptTemplateSettings.SectionName));
+
+            // Register Prompt Template Service
+            builder.Services.AddSingleton<IPromptTemplateService, PromptTemplateService>();
 
             // Configure JWT authentication
             var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is missing in configuration");

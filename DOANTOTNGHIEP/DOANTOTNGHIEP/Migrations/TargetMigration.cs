@@ -47,19 +47,20 @@ namespace DOANTOTNGHIEP.Migrations
                         foreach (var existingTarget in user.Targets)
                         {
                             // Create a new target from the user's existing target data
+                            // Note: Old fields (TargetType, TargetValue, etc.) are mapped to new simplified model
                             var target = new Target
                             {
                                 UserId = user.Id,
                                 Title = existingTarget.Title ?? "User Target",
-                                TargetType = existingTarget.TargetType ?? "general",
-                                TargetValue = existingTarget.TargetValue ?? "100",
-                                CurrentProgress = existingTarget.CurrentProgress,
-                                TargetUnit = existingTarget.TargetUnit ?? "percent",
-                                IsCovered = existingTarget.IsCovered,
-                                CoveredAt = existingTarget.CoveredAt,
+                                Description = null,
+                                Duration = 0,
+                                DurationUnit = "day",
+                                Status = "not_started",
+                                StartedAt = null,
+                                CompletedAt = null,
+                                Plan = null,
                                 CreatedAt = existingTarget.CreatedAt,
-                                UpdatedAt = DateTime.UtcNow,
-                                ProgressHistory = existingTarget.ProgressHistory ?? new List<ProgressHistoryItem>()
+                                UpdatedAt = DateTime.UtcNow
                             };
 
                             // Insert the new target

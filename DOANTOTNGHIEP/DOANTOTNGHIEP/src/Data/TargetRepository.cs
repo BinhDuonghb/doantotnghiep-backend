@@ -30,7 +30,7 @@ namespace DOANTOTNGHIEP.src.Data
         Task<Target> CreateTargetAsync(Target target);
 
         /// <summary>
-        /// Updates a target
+        /// Updates a target (full document replace)
         /// </summary>
         /// <param name="target">Target to update</param>
         /// <returns>True if successful, false otherwise</returns>
@@ -44,12 +44,25 @@ namespace DOANTOTNGHIEP.src.Data
         Task<bool> DeleteTargetAsync(string targetId);
 
         /// <summary>
-        /// Marks a target as covered
+        /// Sets or updates the AI-generated plan on a target (partial update).
+        /// Only modifies the plan and updated_at fields.
         /// </summary>
         /// <param name="targetId">Target ID</param>
-        /// <param name="coveredAt">Timestamp when the target was covered</param>
+        /// <param name="plan">The plan data to store</param>
         /// <returns>True if successful, false otherwise</returns>
-        Task<bool> CoverTargetAsync(string targetId, DateTime coveredAt);
+        Task<bool> SetPlanAsync(string targetId, PlanData plan);
+
+        /// <summary>
+        /// Updates a single checklist item's completion status within a milestone.
+        /// Uses MongoDB positional operators to target nested array elements precisely.
+        /// </summary>
+        /// <param name="targetId">Target ID</param>
+        /// <param name="milestoneOrder">1-based order of the milestone in the plan</param>
+        /// <param name="checklistIndex">0-based index of the checklist item within the milestone's ChecklistItems array</param>
+        /// <param name="isCompleted">The new completion status</param>
+        /// <returns>True if updated, false if not found</returns>
+        Task<bool> UpdateChecklistItemAsync(
+            string targetId, int milestoneOrder, int checklistIndex, bool isCompleted);
     }
 
     /// <summary>
@@ -102,7 +115,7 @@ namespace DOANTOTNGHIEP.src.Data
         }
 
         /// <summary>
-        /// Updates a target
+        /// Updates a target (full document replace)
         /// </summary>
         /// <param name="target">Target to update</param>
         /// <returns>True if successful, false otherwise</returns>
@@ -127,20 +140,53 @@ namespace DOANTOTNGHIEP.src.Data
         }
 
         /// <summary>
-        /// Marks a target as covered
+        /// Sets or updates the AI-generated plan on a target (partial update).
+        /// Only modifies the plan and updated_at fields — does not replace the entire document.
         /// </summary>
         /// <param name="targetId">Target ID</param>
-        /// <param name="coveredAt">Timestamp when the target was covered</param>
+        /// <param name="plan">The plan data to store</param>
         /// <returns>True if successful, false otherwise</returns>
-        public async Task<bool> CoverTargetAsync(string targetId, DateTime coveredAt)
+        public async Task<bool> SetPlanAsync(string targetId, PlanData plan)
         {
             var filter = Builders<Target>.Filter.Eq(t => t.Id, targetId);
             var update = Builders<Target>.Update
-                .Set(t => t.IsCovered, true)
-                .Set(t => t.CoveredAt, coveredAt)
+                .Set(t => t.Plan, plan)
                 .Set(t => t.UpdatedAt, DateTime.UtcNow);
 
             var result = await _mongoDbService.Targets.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> UpdateChecklistItemAsync(
+            string targetId, int milestoneOrder, int checklistIndex, bool isCompleted)
+        {
+            // Use MongoDB positional operator $ to target the specific milestone by its order,
+            // then the positional $[checklist] operator to target the checklist item by index.
+            // Filter: target Id + plan.milestones with the matching order
+            // Update: set is_completed on the matched checklist item + set updated_at
+
+            var filter = Builders<Target>.Filter.And(
+                Builders<Target>.Filter.Eq(t => t.Id, targetId),
+                Builders<Target>.Filter.ElemMatch(t => t.Plan!.Milestones,
+                    m => m.Order == milestoneOrder));
+
+            var update = Builders<Target>.Update
+                .Set($"plan.milestones.$[m].checklist_items.{checklistIndex}.is_completed", isCompleted)
+                .Set(t => t.UpdatedAt, DateTime.UtcNow);
+
+            var arrayFilters = new List<ArrayFilterDefinition>
+            {
+                new BsonDocumentArrayFilterDefinition<MilestoneItem>(
+                    new MongoDB.Bson.BsonDocument("m.order", milestoneOrder))
+            };
+
+            var updateOptions = new UpdateOptions
+            {
+                ArrayFilters = arrayFilters
+            };
+
+            var result = await _mongoDbService.Targets.UpdateOneAsync(filter, update, updateOptions);
             return result.ModifiedCount > 0;
         }
     }

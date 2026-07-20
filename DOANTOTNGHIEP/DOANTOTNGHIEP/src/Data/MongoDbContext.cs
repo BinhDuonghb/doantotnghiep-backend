@@ -71,10 +71,10 @@ namespace DOANTOTNGHIEP.src.Data
             var createdAtIndexModel = new CreateIndexModel<Target>(createdAtIndexKeys);
             targetsCollection.Indexes.CreateOne(createdAtIndexModel);
 
-            // Create index on is_covered field
-            var isCoveredIndexKeys = Builders<Target>.IndexKeys.Ascending(t => t.IsCovered);
-            var isCoveredIndexModel = new CreateIndexModel<Target>(isCoveredIndexKeys);
-            targetsCollection.Indexes.CreateOne(isCoveredIndexModel);
+            // Create index on status field for filtering by status
+            var statusIndexKeys = Builders<Target>.IndexKeys.Ascending(t => t.Status);
+            var statusIndexModel = new CreateIndexModel<Target>(statusIndexKeys);
+            targetsCollection.Indexes.CreateOne(statusIndexModel);
 
             // Create compound index on userId and created_at fields for user-specific sorting
             var userCreatedAtIndexKeys = Builders<Target>.IndexKeys
@@ -82,6 +82,13 @@ namespace DOANTOTNGHIEP.src.Data
                 .Ascending(t => t.CreatedAt);
             var userCreatedAtIndexModel = new CreateIndexModel<Target>(userCreatedAtIndexKeys);
             targetsCollection.Indexes.CreateOne(userCreatedAtIndexModel);
+
+            // Create compound index on userId and status for filtering user targets by status
+            var userStatusIndexKeys = Builders<Target>.IndexKeys
+                .Ascending(t => t.UserId)
+                .Ascending(t => t.Status);
+            var userStatusIndexModel = new CreateIndexModel<Target>(userStatusIndexKeys);
+            targetsCollection.Indexes.CreateOne(userStatusIndexModel);
         }
     }
 

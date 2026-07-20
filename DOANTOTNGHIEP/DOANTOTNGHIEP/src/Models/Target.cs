@@ -5,8 +5,11 @@ using System.ComponentModel.DataAnnotations;
 namespace DOANTOTNGHIEP.src.Models
 {
     /// <summary>
-    /// Represents a user target with progress tracking
+    /// Represents a user target/goal with AI-generated plan support.
+    /// Simplified model: users define a goal with a timeframe,
+    /// and AI generates a structured plan to guide them.
     /// </summary>
+    [BsonIgnoreExtraElements]
     public class Target
     {
         /// <summary>
@@ -24,7 +27,7 @@ namespace DOANTOTNGHIEP.src.Models
         public string UserId { get; set; } = string.Empty;
 
         /// <summary>
-        /// Title of the target
+        /// Title of the target/goal
         /// </summary>
         [BsonElement("title")]
         [Required]
@@ -32,42 +35,49 @@ namespace DOANTOTNGHIEP.src.Models
         public string Title { get; set; } = string.Empty;
 
         /// <summary>
-        /// Type of the target
+        /// Description of what the target is about
         /// </summary>
-        [BsonElement("target_type")]
-        [Required]
-        public string TargetType { get; set; } = string.Empty;
+        [BsonElement("description")]
+        public string? Description { get; set; }
 
         /// <summary>
-        /// Target value to achieve
+        /// Duration value for completing the target (e.g., 3)
         /// </summary>
-        [BsonElement("target_value")]
-        [Required]
-        public string TargetValue { get; set; } = string.Empty;
+        [BsonElement("duration")]
+        public int Duration { get; set; }
 
         /// <summary>
-        /// Current progress value achieved
+        /// Unit of the duration (hour, day, week, month)
         /// </summary>
-        [BsonElement("current_progress")]
-        public int CurrentProgress { get; set; } = 0;
+        [BsonElement("duration_unit")]
+        public string DurationUnit { get; set; } = "day";
 
         /// <summary>
-        /// Unit of the target (e.g., "questions", "minutes", "days")
+        /// Current status of the target
+        /// Possible values: not_started, in_progress, completed
         /// </summary>
-        [BsonElement("target_unit")]
-        public string TargetUnit { get; set; } = string.Empty;
+        [BsonElement("status")]
+        public string Status { get; set; } = "not_started";
 
         /// <summary>
-        /// Whether the target has been covered/completed
+        /// When the user started working on this target
         /// </summary>
-        [BsonElement("is_covered")]
-        public bool IsCovered { get; set; } = false;
+        [BsonElement("started_at")]
+        public DateTime? StartedAt { get; set; }
 
         /// <summary>
-        /// Timestamp when the target was covered/completed
+        /// When the target was completed
         /// </summary>
-        [BsonElement("covered_at")]
-        public DateTime? CoveredAt { get; set; }
+        [BsonElement("completed_at")]
+        public DateTime? CompletedAt { get; set; }
+
+        /// <summary>
+        /// AI-generated plan embedded in the target.
+        /// Contains milestones, checklist items, and quizzes.
+        /// Null if no plan has been generated yet.
+        /// </summary>
+        [BsonElement("plan")]
+        public PlanData? Plan { get; set; }
 
         /// <summary>
         /// Timestamp when the target was created
@@ -80,29 +90,121 @@ namespace DOANTOTNGHIEP.src.Models
         /// </summary>
         [BsonElement("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        /// <summary>
-        /// History of progress updates
-        /// </summary>
-        [BsonElement("progress_history")]
-        public List<ProgressHistoryItem> ProgressHistory { get; set; } = new List<ProgressHistoryItem>();
     }
 
     /// <summary>
-    /// Represents a progress history item
+    /// AI-generated plan data embedded in a Target.
+    /// Contains a summary, milestones with checklists, and quizzes tied to milestones.
     /// </summary>
-    public class ProgressHistoryItem
+    public class PlanData
     {
         /// <summary>
-        /// Value at the time of update
+        /// Overall summary of the plan
         /// </summary>
-        [BsonElement("value")]
-        public int Value { get; set; }
+        [BsonElement("summary")]
+        public string Summary { get; set; } = string.Empty;
 
         /// <summary>
-        /// Timestamp when the progress was recorded
+        /// When the plan was generated
         /// </summary>
-        [BsonElement("recorded_at")]
-        public DateTime RecordedAt { get; set; }
+        [BsonElement("generated_at")]
+        public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Ordered list of milestones in the plan
+        /// </summary>
+        [BsonElement("milestones")]
+        public List<MilestoneItem> Milestones { get; set; } = new();
+
+        /// <summary>
+        /// Quizzes associated with specific milestones
+        /// </summary>
+        [BsonElement("quizzes")]
+        public List<PlanQuizItem> Quizzes { get; set; } = new();
+    }
+
+    /// <summary>
+    /// A single milestone within a plan, containing its own checklist items.
+    /// </summary>
+    public class MilestoneItem
+    {
+        /// <summary>
+        /// Title of the milestone (e.g., "Learn Basic Setup")
+        /// </summary>
+        [BsonElement("title")]
+        public string Title { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Description of what this milestone entails
+        /// </summary>
+        [BsonElement("description")]
+        public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Order/sequence of this milestone (1-based)
+        /// </summary>
+        [BsonElement("order")]
+        public int Order { get; set; }
+
+        /// <summary>
+        /// Estimated duration to complete this milestone
+        /// (e.g., "1 week", "3 days")
+        /// </summary>
+        [BsonElement("duration_estimate")]
+        public string DurationEstimate { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Checklist of tasks to complete within this milestone
+        /// </summary>
+        [BsonElement("checklist_items")]
+        public List<MilestoneChecklistItem> ChecklistItems { get; set; } = new();
+    }
+
+    /// <summary>
+    /// A single checklist item within a milestone.
+    /// </summary>
+    public class MilestoneChecklistItem
+    {
+        /// <summary>
+        /// Title/description of the task
+        /// </summary>
+        [BsonElement("title")]
+        public string Title { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Whether this task has been completed
+        /// </summary>
+        [BsonElement("is_completed")]
+        public bool IsCompleted { get; set; }
+    }
+
+    /// <summary>
+    /// A quiz question embedded within a plan, tied to a specific milestone.
+    /// </summary>
+    public class PlanQuizItem
+    {
+        /// <summary>
+        /// The quiz question text
+        /// </summary>
+        [BsonElement("question")]
+        public string Question { get; set; } = string.Empty;
+
+        /// <summary>
+        /// List of answer options
+        /// </summary>
+        [BsonElement("options")]
+        public List<string> Options { get; set; } = new();
+
+        /// <summary>
+        /// The correct answer (must match one of the options)
+        /// </summary>
+        [BsonElement("correct_answer")]
+        public string CorrectAnswer { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The milestone title this quiz question is associated with
+        /// </summary>
+        [BsonElement("milestone_title")]
+        public string MilestoneTitle { get; set; } = string.Empty;
     }
 }

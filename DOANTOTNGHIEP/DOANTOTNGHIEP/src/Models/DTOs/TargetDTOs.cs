@@ -13,25 +13,27 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// Title of the target
         /// </summary>
         [Required]
+        [MinLength(1, ErrorMessage = "Title must be at least 1 character long")]
+        [MaxLength(100, ErrorMessage = "Title must be at most 100 characters long")]
         public string Title { get; set; } = string.Empty;
 
         /// <summary>
-        /// Type of the target
+        /// Description of what the target is about
         /// </summary>
-        [Required]
-        public string TargetType { get; set; } = string.Empty;
+        [MaxLength(500, ErrorMessage = "Description must be at most 500 characters long")]
+        public string? Description { get; set; }
 
         /// <summary>
-        /// Target value to achieve
+        /// Duration value for completing the target (e.g., 3)
         /// </summary>
-        [Required]
-        public string TargetValue { get; set; } = string.Empty;
+        [Range(1, int.MaxValue, ErrorMessage = "Duration must be at least 1")]
+        public int? Duration { get; set; }
 
         /// <summary>
-        /// Unit of the target
+        /// Unit of the duration. Must be one of: hour, day, week, month.
         /// </summary>
-        [Required]
-        public string TargetUnit { get; set; } = string.Empty;
+        [RegularExpression("^(hour|day|week|month)$", ErrorMessage = "DurationUnit must be one of: hour, day, week, month")]
+        public string? DurationUnit { get; set; }
     }
 
     /// <summary>
@@ -42,56 +44,155 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// <summary>
         /// Title of the target
         /// </summary>
+        [MinLength(1, ErrorMessage = "Title must be at least 1 character long")]
+        [MaxLength(100, ErrorMessage = "Title must be at most 100 characters long")]
         public string? Title { get; set; }
 
         /// <summary>
-        /// Target value to achieve
+        /// Description of the target
         /// </summary>
-        public string? TargetValue { get; set; }
+        [MaxLength(500, ErrorMessage = "Description must be at most 500 characters long")]
+        public string? Description { get; set; }
 
         /// <summary>
-        /// Unit of the target
+        /// Duration value for completing the target
         /// </summary>
-        public string? TargetUnit { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Duration must be at least 1")]
+        public int? Duration { get; set; }
 
         /// <summary>
-        /// Current progress value
+        /// Unit of the duration
         /// </summary>
-        public int? CurrentProgress { get; set; }
+        [RegularExpression("^(hour|day|week|month)$", ErrorMessage = "DurationUnit must be one of: hour, day, week, month")]
+        public string? DurationUnit { get; set; }
+
+        /// <summary>
+        /// Status of the target. Must be one of: not_started, in_progress, completed.
+        /// Setting to in_progress auto-sets StartedAt if not already set.
+        /// Setting to completed auto-sets CompletedAt.
+        /// </summary>
+        [RegularExpression("^(not_started|in_progress|completed)$", ErrorMessage = "Status must be one of: not_started, in_progress, completed")]
+        public string? Status { get; set; }
     }
 
     /// <summary>
-    /// DTO for covering a target
+    /// DTO for updating a checklist item's completion status
+    /// PATCH /api/targets/{id}/milestones/{order}/checklist/{index}
     /// </summary>
-    public class CoverTargetRequestDto
+    public class UpdateChecklistItemRequest
     {
         /// <summary>
-        /// Timestamp when the target was covered
+        /// Whether the checklist item is completed
         /// </summary>
         [Required]
-        public string CoveredAt { get; set; } = string.Empty;
+        public bool IsCompleted { get; set; }
+    }
+
+    // ==================== Plan DTOs ====================
+
+    /// <summary>
+    /// DTO for plan summary in responses
+    /// </summary>
+    public class PlanDataDto
+    {
+        /// <summary>
+        /// Overall summary of the plan
+        /// </summary>
+        public string Summary { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When the plan was generated (ISO 8601)
+        /// </summary>
+        public string GeneratedAt { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Milestones in the plan
+        /// </summary>
+        public List<MilestoneItemDto> Milestones { get; set; } = new();
+
+        /// <summary>
+        /// Quizzes associated with milestones
+        /// </summary>
+        public List<PlanQuizItemDto> Quizzes { get; set; } = new();
+    }
+
+    /// <summary>
+    /// DTO for a milestone item
+    /// </summary>
+    public class MilestoneItemDto
+    {
+        /// <summary>
+        /// Title of the milestone
+        /// </summary>
+        public string Title { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Description of what this milestone entails
+        /// </summary>
+        public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Order/sequence (1-based)
+        /// </summary>
+        public int Order { get; set; }
+
+        /// <summary>
+        /// Estimated duration (e.g., "1 week", "3 days")
+        /// </summary>
+        public string DurationEstimate { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Checklist tasks within this milestone
+        /// </summary>
+        public List<MilestoneChecklistItemDto> ChecklistItems { get; set; } = new();
+    }
+
+    /// <summary>
+    /// DTO for a milestone checklist item
+    /// </summary>
+    public class MilestoneChecklistItemDto
+    {
+        /// <summary>
+        /// Title/description of the task
+        /// </summary>
+        public string Title { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Whether this task has been completed
+        /// </summary>
+        public bool IsCompleted { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for a quiz item embedded in a plan
+    /// </summary>
+    public class PlanQuizItemDto
+    {
+        /// <summary>
+        /// The quiz question text
+        /// </summary>
+        public string Question { get; set; } = string.Empty;
+
+        /// <summary>
+        /// List of answer options
+        /// </summary>
+        public List<string> Options { get; set; } = new();
+
+        /// <summary>
+        /// The correct answer
+        /// </summary>
+        public string CorrectAnswer { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The milestone title this quiz is associated with
+        /// </summary>
+        public string MilestoneTitle { get; set; } = string.Empty;
     }
 
     // ==================== Target Response DTOs ====================
 
     /// <summary>
-    /// DTO for target progress history item
-    /// </summary>
-    public class ProgressHistoryItemDto
-    {
-        /// <summary>
-        /// Value at the time of update
-        /// </summary>
-        public int Value { get; set; }
-
-        /// <summary>
-        /// Timestamp when the progress was recorded
-        /// </summary>
-        public string RecordedAt { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// DTO for target response (used in multiple endpoints)
+    /// DTO for target response (used in list and basic responses)
     /// </summary>
     public class TargetResponseDto
     {
@@ -111,55 +212,75 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         public string Title { get; set; } = string.Empty;
 
         /// <summary>
-        /// Type of the target
+        /// Description of the target
         /// </summary>
-        public string TargetType { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         /// <summary>
-        /// Target value to achieve
+        /// Duration value for completing the target
         /// </summary>
-        public string TargetValue { get; set; } = string.Empty;
+        public int Duration { get; set; }
 
         /// <summary>
-        /// Current progress value achieved
+        /// Unit of the duration
         /// </summary>
-        public int CurrentProgress { get; set; }
+        public string DurationUnit { get; set; } = string.Empty;
 
         /// <summary>
-        /// Unit of the target
+        /// Current status
         /// </summary>
-        public string TargetUnit { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
 
         /// <summary>
-        /// Whether the target has been covered/completed
+        /// When the user started working on the target
         /// </summary>
-        public bool IsCovered { get; set; }
+        public string? StartedAt { get; set; }
 
         /// <summary>
-        /// Timestamp when the target was covered/completed
+        /// When the target was completed
         /// </summary>
-        public string? CoveredAt { get; set; }
+        public string? CompletedAt { get; set; }
 
         /// <summary>
-        /// Timestamp when the target was created
+        /// Whether an AI-generated plan exists for this target
+        /// </summary>
+        public bool HasPlan { get; set; }
+
+        /// <summary>
+        /// Creation timestamp
         /// </summary>
         public string CreatedAt { get; set; } = string.Empty;
 
         /// <summary>
-        /// Timestamp when the target was last updated
+        /// Last update timestamp
         /// </summary>
         public string UpdatedAt { get; set; } = string.Empty;
     }
 
     /// <summary>
-    /// DTO for detailed target response
+    /// DTO for detailed target response (includes plan + stats)
     /// </summary>
     public class TargetDetailResponseDto : TargetResponseDto
     {
         /// <summary>
-        /// History of progress updates
+        /// The AI-generated plan, if any
         /// </summary>
-        public List<ProgressHistoryItemDto> ProgressHistory { get; set; } = new List<ProgressHistoryItemDto>();
+        public PlanDataDto? Plan { get; set; }
+
+        /// <summary>
+        /// Total number of milestones in the plan
+        /// </summary>
+        public int TotalMilestones { get; set; }
+
+        /// <summary>
+        /// Number of completed checklist items across all milestones
+        /// </summary>
+        public int CompletedChecklistItems { get; set; }
+
+        /// <summary>
+        /// Total number of checklist items across all milestones
+        /// </summary>
+        public int TotalChecklistItems { get; set; }
     }
 
     /// <summary>
@@ -170,7 +291,7 @@ namespace DOANTOTNGHIEP.src.Models.DTOs
         /// <summary>
         /// List of targets
         /// </summary>
-        public List<TargetResponseDto> Targets { get; set; } = new List<TargetResponseDto>();
+        public List<TargetResponseDto> Targets { get; set; } = new();
 
         /// <summary>
         /// Total count of targets

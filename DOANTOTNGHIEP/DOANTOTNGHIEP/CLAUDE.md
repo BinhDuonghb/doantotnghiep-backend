@@ -1,23 +1,76 @@
 # Agent: backend
-# Task: System.FormatException: Element 'target' does not match any field or property of class DOANTOTNGHIEP.src.Models.User.
-   at MongoDB.Bson.Serialization.BsonClassMapSerializer`1.DeserializeClass(BsonDeserializationContext context)
-   at MongoDB.Bson.Serialization.BsonClassMapSerializer`1.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-   at MongoDB.Bson.Serialization.IBsonSerializerExtensions.Deserialize[TValue](IBsonSerializer`1 serializer, BsonDeserializationContext context)
-   at MongoDB.Driver.Core.Operations.CursorBatchDeserializationHelper.DeserializeBatch[TDocument](RawBsonArray batch, IBsonSerializer`1 documentSerializer, MessageEncoderSettings messageEncoderSettings)
-   at MongoDB.Driver.Core.Operations.FindOperation`1.CreateFirstCursorBatch(BsonDocument cursorDocument)
-   at MongoDB.Driver.Core.Operations.FindOperation`1.CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
-   at MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
-   at MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(OperationContext operationContext, IReadBinding binding)
-   at MongoDB.Driver.OperationExecutor.ExecuteReadOperationAsync[TResult](OperationContext operationContext, IClientSessionHandle session, IReadOperation`1 operation, ReadPreference readPreference, Boolean allowChannelPinning)
-   at MongoDB.Driver.MongoCollectionImpl`1.ExecuteReadOperationAsync[TResult](IClientSessionHandle session, IReadOperation`1 operation, ReadPreference explicitReadPreference, Nullable`1 timeout, CancellationToken cancellationToken)
-   at MongoDB.Driver.MongoCollectionImpl`1.FindAsync[TProjection](FilterDefinition`1 filter, FindOptions`2 options, CancellationToken cancellationToken)
-   at MongoDB.Driver.IAsyncCursorSourceExtensions.FirstOrDefaultAsync[TDocument](IAsyncCursorSource`1 source, CancellationToken cancellationToken)
-   at DOANTOTNGHIEP.src.Data.UserRepository.FindByEmailAsync(String email) in D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Data\UserRepository.cs:line 88
-   at DOANTOTNGHIEP.src.Services.UserService.GetUserByEmailAsync(String email) in D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Services\UserService.cs:line 152
-   at DOANTOTNGHIEP.src.Controllers.AuthController.Login(LoginRequest request) in D:\Study\tonghiep\doantotnghiep-backend\DOANTOTNGHIEP\DOANTOTNGHIEP\src\Controllers\AuthController.cs:line 103
-   at lambda_method5(Closure, Object)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments) the login enpoint is bug
-# Generated: 2026-07-15T19:06:37.691194
+# Task: Add GenerateQuizzesFromTarget endpoint to QuizController. POST /api/quiz/generate-from-target. Accept request with optional targetId, count, category, difficulty. Validate user has a target (use provided targetId or find user's active target). Call IAiQuizService to generate quizzes based on target. Store generated quizzes in database via IQuizRepository. Return generated quizzes with target info used.
+
+=== Feature ===
+AI Quiz Generation Based on User Target
+
+=== Shared API Contracts ===
+[
+  {
+    "name": "GenerateQuizzesFromTarget",
+    "endpoint": "/api/quiz/generate-from-target",
+    "method": "POST",
+    "request": {
+      "targetId": "string (optional - if not provided, uses user's active target)",
+      "count": "integer (default: 5, max: 20)",
+      "category": "string (optional - override target's category)",
+      "difficulty": "string (optional - Easy|Medium|Hard, default: Medium)"
+    },
+    "response": {
+      "generated": "integer",
+      "quizzes": [
+        {
+          "id": "string",
+          "question": "string",
+          "options": [
+            "string"
+          ],
+          "correctAnswer": "string",
+          "category": "string",
+          "difficulty": "string"
+        }
+      ],
+      "targetUsed": {
+        "id": "string",
+        "title": "string",
+        "targetType": "string",
+        "targetValue": "string",
+        "targetUnit": "string"
+      }
+    },
+    "success_status_code": 201,
+    "error_status_codes": {
+      "400": "Invalid request or no target found",
+      "401": "Unauthorized",
+      "403": "Target not set or not accessible",
+      "404": "Target not found",
+      "500": "AI service error or internal server error",
+      "503": "AI service unavailable"
+    }
+  },
+  {
+    "name": "GetQuizGenerationStatus",
+    "endpoint": "/api/quiz/generation-status/{generationId}",
+    "method": "GET",
+    "request": null,
+    "response": {
+      "generationId": "string",
+      "status": "string (pending|completed|failed)",
+      "generatedCount": "integer",
+      "requestedCount": "integer",
+      "error": "string (optional)",
+      "createdAt": "string (ISO 8601)",
+      "completedAt": "string (ISO 8601, optional)"
+    },
+    "success_status_code": 200,
+    "error_status_codes": {
+      "401": "Unauthorized",
+      "404": "Generation job not found",
+      "500": "Internal server error"
+    }
+  }
+]
+# Generated: 2026-07-17T04:14:18.929421
 
 ## SYSTEM PROMPT
 You are a Senior ASP.NET Core Backend Developer.
@@ -69,7 +122,7 @@ When implementing, assume you understand the codebase from the structure provide
 
 ## AGENT MEMORY (Backend)
 
-_Last updated: _
+_Last updated: 2026-07-17T04:14:18.730037_
 
 
 ## PROJECT CONTEXT

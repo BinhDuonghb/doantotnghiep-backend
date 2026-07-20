@@ -230,14 +230,13 @@ namespace DOANTOTNGHIEP.src.Services
             target.CreatedAt = DateTime.UtcNow;
             target.UpdatedAt = DateTime.UtcNow;
 
-            // Create the target through TargetService
-            // Note: We'll need to create a DTO for this, but for now we'll use the repository directly
+            // Create the target through TargetService using the simplified DTO
             return await _targetService.CreateTargetAsync(userId, new CreateTargetRequestDto
             {
                 Title = target.Title,
-                TargetType = target.TargetType,
-                TargetValue = target.TargetValue,
-                TargetUnit = target.TargetUnit
+                Description = target.Description,
+                Duration = target.Duration > 0 ? target.Duration : null,
+                DurationUnit = !string.IsNullOrWhiteSpace(target.DurationUnit) ? target.DurationUnit : null
             });
         }
 
@@ -256,9 +255,10 @@ namespace DOANTOTNGHIEP.src.Services
                 var updateDto = new UpdateTargetRequestDto
                 {
                     Title = target.Title,
-                    TargetValue = target.TargetValue,
-                    TargetUnit = target.TargetUnit,
-                    CurrentProgress = target.CurrentProgress
+                    Description = target.Description,
+                    Duration = target.Duration > 0 ? target.Duration : null,
+                    DurationUnit = !string.IsNullOrWhiteSpace(target.DurationUnit) ? target.DurationUnit : null,
+                    Status = !string.IsNullOrWhiteSpace(target.Status) ? target.Status : null
                 };
 
                 await _targetService.UpdateTargetAsync(targetId, updateDto);
